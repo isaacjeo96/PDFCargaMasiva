@@ -1,0 +1,56 @@
+﻿@model ML.Result
+
+@{
+    ViewBag.Title = "CargaMasiva";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Procesar Archivos PDF</h1>
+<h4>Por favor, seleccione una carpeta para procesar los documentos</h4>
+<p>Nota: recuerda que estos archivos se cargarán a los índices de Elastic relacionados a RAdministrativos</p>
+
+@using (Html.BeginForm("ProcessAndSplitPdfDirectory", "RAdministrativa", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div>
+        <label for="files">Seleccione una carpeta:</label>
+        <input type="file" name="files" id="files" webkitdirectory multiple />
+    </div>
+    <div>
+        <label for="splitAfterPage">Dividir después de la página:</label>
+        <input type="number" name="splitAfterPage" value="1" min="1" max="10" />
+    </div>
+    <div>
+        <button type="submit">Procesar Carpeta</button>
+    </div>
+}
+
+@if (!Model.Correct)
+{
+    <div class="alert alert-danger">
+        @Model.Message
+    </div>
+}
+
+@if (Model.Objects != null && Model.Objects.Any())
+{
+    <h2>Resultados de la División</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre documento</th>
+                <th>Se dividió</th>
+                <th>No. Páginas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var file in Model.Objects.Cast<ML.ProcessedFile>())
+            {
+                <tr>
+                    <td>@file.FileName</td>
+                    <td>@(file.IsDivided ? "SI" : "NO")</td>
+                    <td>@file.NumberOfPages</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
